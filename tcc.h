@@ -1564,6 +1564,7 @@ ST_FUNC void gen_le16(int c);
 ST_FUNC void gen_le32(int c);
 ST_FUNC void gen_addr32(int r, Sym *sym, long c);
 ST_FUNC void gen_addrpc32(int r, Sym *sym, long c);
+ST_FUNC void gen_cvt_csti(int t);
 #endif
 
 #ifdef CONFIG_TCC_BCHECK
@@ -1573,6 +1574,7 @@ ST_FUNC void gen_bounded_ptr_deref(void);
 
 /* ------------ x86_64-gen.c ------------ */
 #ifdef TCC_TARGET_X86_64
+ST_FUNC void gen_cvt_sxtw(void);
 ST_FUNC void gen_addr64(int r, Sym *sym, int64_t c);
 ST_FUNC void gen_opl(int op);
 #endif
@@ -1589,6 +1591,7 @@ ST_FUNC void gen_cvt_itof1(int t);
 /* ------------ arm64-gen.c ------------ */
 #ifdef TCC_TARGET_ARM64
 ST_FUNC void gen_cvt_sxtw(void);
+ST_FUNC void gen_cvt_csti(int t);
 ST_FUNC void gen_opl(int op);
 ST_FUNC void gfunc_return(CType *func_type);
 ST_FUNC void gen_va_start(void);
