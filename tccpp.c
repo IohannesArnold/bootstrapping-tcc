@@ -2911,6 +2911,7 @@ static void next_nomacro_spc(void)
     } else {
         next_nomacro1();
     }
+    //printf("token = %s\n", get_tok_str(tok, &tokc));
 }
 
 ST_FUNC void next_nomacro(void)
@@ -2956,7 +2957,7 @@ static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args)
                 cstr_ccat(&cstr, '\"');
                 st = s->d;
                 spc = 0;
-                while (*st) {
+                while (*st >= 0) {
                     TOK_GET(&t, &st, &cval);
                     if (t != TOK_PLCHLDR
                      && t != TOK_NOSUBST
@@ -2996,7 +2997,7 @@ static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args)
                     /* special case for var arg macros : ## eats the ','
                        if empty VA_ARGS variable. */
                     if (t1 == TOK_PPJOIN && t0 == ',' && gnu_ext && s->type.t) {
-                        if (*st == 0) {
+                        if (*st <= 0) {
                             /* suppress ',' '##' */
                             str.len -= 2;
                         } else {
@@ -3008,12 +3009,11 @@ static int *macro_arg_subst(Sym **nested_list, const int *macro_str, Sym *args)
                         for(;;) {
                             int t1;
                             TOK_GET(&t1, &st, &cval);
-                            if (!t1)
+                            if (t1 <= 0)
                                 break;
                             tok_str_add2(&str, t1, &cval);
                         }
                     }
-
                 } else {
             add_var:
                     /* NOTE: the stream cannot be read when macro
@@ -3055,7 +3055,7 @@ static int next_argstream(Sym **nested_list, int can_read_stream, TokenString *w
                 while (is_space(t) || TOK_LINEFEED == t || TOK_PLCHLDR == t)
                     tok_str_add(ws_str, t), t = *++p;
             }
-            if (t == 0 && can_read_stream) {
+            if (t == 0) {
                 end_macro();
                 /* also, end of scope for nested defined symbol */
                 sa = *nested_list;
@@ -3221,6 +3221,7 @@ static int macro_subst_tok(
                 if (parlevel)
                     expect(")");
                 str.len -= spc;
+                tok_str_add(&str, -1);
                 tok_str_add(&str, 0);
                 sa1 = sym_push2(&args, sa->v & ~SYM_FIELD, sa->type.t, 0);
                 sa1->d = str.str;
@@ -3390,7 +3391,7 @@ static void macro_subst(
 
     while (1) {
         TOK_GET(&t, &ptr, &cval);
-        if (t == 0)
+        if (t <= 0)
             break;
 
         if (t >= TOK_IDENT && 0 == nosubst) {
@@ -3727,6 +3728,7 @@ static int pp_need_space(int a, int b)
         : '+' == a ? TOK_INC == b || '+' == b
         : '-' == a ? TOK_DEC == b || '-' == b
         : a >= TOK_IDENT ? b >= TOK_IDENT
+	: a == TOK_PPNUM ? b >= TOK_IDENT
         : 0;
 }
 
