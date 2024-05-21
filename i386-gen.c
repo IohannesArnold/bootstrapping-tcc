@@ -506,7 +506,7 @@ ST_FUNC void gfunc_call(int nb_args)
 #endif
     gcall_or_jmp(0);
 
-    if (args_size && func_call != FUNC_STDCALL)
+    if (args_size && func_call != FUNC_STDCALL && func_call != FUNC_FASTCALLW)
         gadd_sp(args_size);
     vtop--;
 }
@@ -588,8 +588,8 @@ ST_FUNC void gfunc_prolog(CType *func_type)
         param_index++;
     }
     func_ret_sub = 0;
-    /* pascal type call ? */
-    if (func_call == FUNC_STDCALL)
+    /* pascal type call or fastcall ? */
+    if (func_call == FUNC_STDCALL || func_call == FUNC_FASTCALLW)
         func_ret_sub = addr - 8;
 #ifndef TCC_TARGET_PE
     else if (func_vc)
