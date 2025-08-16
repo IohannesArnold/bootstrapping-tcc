@@ -130,12 +130,6 @@ ST_FUNC int tcc_tool_ar(TCCState *s1, int argc, char **argv)
     if (ret == 1)
         return ar_usage(ret);
 
-    if ((fh = fopen(argv[i_lib], "wb")) == NULL)
-    {
-        fprintf(stderr, "tcc: ar: can't open file %s \n", argv[i_lib]);
-        goto the_end;
-    }
-
     sprintf(tfile, "%s.tmp", argv[i_lib]);
     if ((fo = fopen(tfile, "wb+")) == NULL)
     {
@@ -249,6 +243,12 @@ ST_FUNC int tcc_tool_ar(TCCState *s1, int argc, char **argv)
     fpos = 0;
     if ((hofs & 1)) // align
         hofs++, fpos = 1;
+
+    if ((fh = fopen(argv[i_lib], "wb")) == NULL)
+    {
+        fprintf(stderr, "tcc: ar: can't open file %s \n", argv[i_lib]);
+        goto the_end;
+    }
     // write header
     fwrite("!<arch>\n", 8, 1, fh);
     sprintf(stmp, "%-10d", (int)(strpos + (funccnt+1) * sizeof(int)));
